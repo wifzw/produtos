@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- 
+        #Author: Kauan Motta 
+        #linkedin: https://www.linkedin.com/in/kauan-motta/
+        #16 years - Junior
+    -->
+    <title>Sistema de Produtos</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style>
+        #app .produtos { 
+        flex-direction: column;
+        display: flex;
+        width: 60%;
+     
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <h1>Produtos</h1>
+        <ul>
+            <li 
+            v-for="(produto, chave) of produtos"
+            v-if="produto.id === 6"
+            >
+            --> Aprovado (id=6) - Indice [{{chave}}]: Nome do Produto: {{ produto.nome_prod }} - R$: {{produto.valor}} - ID: {{produto.id}}
+            </li>
+            <li v-else>
+            --> Reprovado(!id=6) - Indice [{{chave}}]: Nome do Produto: {{ produto.nome_prod }} - R$: {{produto.valor}} - ID: {{produto.id}}
+            </li>
+        </ul>
+        <div>
+            <h2> Função adicionada:</h2>
+            <ul>
+                <li v-for="(funcao) of funcao">
+                    {{ funcao }}
+                </li>
+            </ul>
+        </div>
+        <div class="produtos">
+            <br /> <br />
+            <label>Nome do Produto:</label>
+            <input v-model="default_produto.nome_prod" type="text" :key="default_produto.id" id="nomeFocus" placeholder="Nome do Produto">
+            <br /> 
+            <label>Marca do Produto:</label>
+            <input v-model="default_produto.marca" :key="default_produto.id"  type="text" id="marcaFocus" placeholder="Marca do Produto">
+            <br /> 
+            <label>Valor do Produto:</label>
+            <input v-model="default_produto.valor" :key="default_produto.id"  type="text" id="valorFocus" placeholder="Valor do produto">
+            <br /> <br />
+            <button type="submit" @click="validacao"> 
+                Adicionar Produto
+            </button>
+            <br /> <br />
+            <input v-model="excluiProduto" type="text" placeholder="Digite o nome do produto há ser excluido..." id="excluirFocus">
+            <button type="submit" @click="excluirProduto(excluiProduto)"> 
+                Excluir
+            </button>
+            <button type="submit"  :disabled="!podeclicar" @click="excluiTudo"> 
+                Excluir Todos
+            </button>
+            <button type="submit" @click="limpar"> 
+                Limpar
+            </button>
+            <button type="submit"  :disabled="podeclicar" @click="restaurarExcluidos"> 
+                Restaurar Excluidos
+            </button>
+       </div>
+    </div>
+    
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+    data: {
+       excluiProduto: '',
+       podeclicar: true,
+       backup: false,
+       backupProdutos: [],
+       funcao: [
+           'Validação',
+           'Adicionar Produtos',
+           'Excluir Produtos',
+           'Limpar',
+           'Excluir Tudo',
+           'Restaurar Produtos',
+       ],
+       backupAdicional: [],
+       default_produto: [{
+           id: 1,
+           nome_prod: '',
+           marca: '',
+           valor: null
+       }],
+       produtos: [
+        {
+           id: 6,
+           nome_prod: 'Teclado',
+           marca: 'Del',
+           valor: 2000,
+        },
+        {
+           id: 8,
+           nome_prod: 'Monitor',
+           marca: 'Del',
+           valor: 1500,
+        },
+         {
+           id: 10,
+           nome_prod: 'Mouse',
+           marca: 'Logitech',
+           valor: 300,
+        }
+    ]
+    },
+
+    methods: {
+        adicionaProduto() {
+            this.default_produto.id = Math.floor(Math.random() * 100 + 20)
+
+            const item = this.default_produto
+
+            this.backupAdicional.push(item)
+
+            this.produtos.push(item)
+            this.limpar()
+        },
+        excluirProduto(item) {  
+            if(!item) {
+                alert('Digite o Nome do Produto que você deseja excluir!')
+                document.getElementById("excluirFocus").focus();
+                return false;
+            }
+     
+            for(let c=0; c < this.produtos.length; c++){
+                if(item ===  this.produtos[c].nome_prod){
+                    var verifProduto = this.produtos[c].nome_prod
+                } 
+            }
+     
+            if(!verifProduto){
+                 this.excluiProduto = ''
+                 alert('Não existe esse produto! Cadastre agora mesmo!')
+                 document.getElementById("nomeFocus").focus();
+                 return false;
+            }
+
+            for (var i = 0, j = this.produtos.length; i !== j; i++) {
+                if (this.produtos[i].nome_prod === item) break;
+            }
+
+             if (confirm(`Você deseja excluir o ${item} ?`)) {
+                this.produtos.splice(i, 1);
+            } else {
+                this.excluiProduto = ''
+                document.getElementById("excluirFocus").focus();
+            }
+        },
+        limpar() {
+            this.excluiProduto = ''
+            return this.default_produto = {}
+        }, 
+        validacao() {
+            var item = this.default_produto
+
+            var valido = /^[\d?!]+$/.test(item.valor);
+
+            if(!valido) {
+                const itemAnterior = item.valor
+                this.default_produto.valor = ''
+                alert("[Campo Valor do Produto]: Você deve utilizar apenas numeros inteiros!");
+                document.getElementById("valorFocus").focus();
+                return false;
+            }
+            
+
+             if (typeof item.nome_prod === 'undefined') {
+                alert('O campo Nome do Produto é obrigatório!')
+                return false;
+            }
+
+            if (typeof item.marca === 'undefined') {
+                alert('O campo Marca é obrigatório!')
+                return false;
+            }
+
+            if (typeof item.valor === 'undefined') {
+                alert('O campo Valor é obrigatório!')
+                return false;
+            }
+
+            for(let c=0; c < this.produtos.length; c++){
+                if(item.nome_prod ===  this.produtos[c].nome_prod){
+                    var verifProduto = this.produtos[c].nome_prod
+                } 
+            }
+
+            if(verifProduto) {
+               alert('Você não pode cadastrar um produto já cadastrado!')
+               return false;
+            }
+
+            this.adicionaProduto();
+        },
+        excluiTudo() {
+            this.podeclicar = false
+            this.backupProdutos = this.produtos
+            this.produtos = {}
+        },
+        restaurarExcluidos() {
+            this.podeclicar = true
+            this.produtos = this.backupProdutos
+        },      
+    }
+});
+</script>
+</body>
+</html>
